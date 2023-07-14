@@ -9,6 +9,24 @@ public class SensorData
     [BsonRepresentation(BsonType.ObjectId)]
     public string Id { get; set; }
 
-    [BsonElement("Name")]
-    public string Name { get; set; } = null!;
+    [BsonElement("sensorId")]
+    public string SensorId { get; set; } = null!;
+
+    [BsonElement("timestamp")]
+    public DateTime Timestamp { get; set; }
+
+    public float Temperature { get; set; }
+
+    [BsonIgnoreIfNull] public int? A { get; set; }
+    [BsonIgnoreIfNull] public int? B { get; set; }
+    [BsonIgnoreIfNull] public int? C { get; set; }
+    [BsonIgnoreIfNull] public int? D { get; set; }
+    [BsonIgnoreIfNull] public int? E { get; set; }
+    [BsonIgnoreIfNull] public int? F { get; set; }
+    [BsonIgnoreIfNull] public int? G { get; set; }
+    [BsonIgnoreIfNull] public int? H { get; set; }
+    [BsonIgnoreIfNull] public int? I { get; set; }
+    [BsonIgnoreIfNull] public int? J { get; set; }
+    [BsonIgnoreIfNull] public int? K { get; set; }
+    [BsonIgnoreIfNull] public int? L { get; set; }
 }

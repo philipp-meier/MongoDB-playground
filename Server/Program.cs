@@ -2,8 +2,8 @@ using Server.Models;
 using Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
-// Add services to the container.
 builder.Services.Configure<DatabaseSettings>(
     builder.Configuration.GetSection("MongoDb")
 );

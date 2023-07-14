@@ -38,6 +38,13 @@ public class SensorDataController : ControllerBase
         return CreatedAtAction(nameof(Get), new { id = sensorData.Id }, sensorData);
     }
 
+    [HttpPost("import"), DisableRequestSizeLimit]
+    public async Task<IActionResult> Import(SensorData[] sensorData, CancellationToken cancellationToken)
+    {
+        await _sensorDataService.BulkInsertAsync(sensorData, cancellationToken);
+        return NoContent();
+    }
+
     [HttpPut("{id:length(24)}")]
     public async Task<IActionResult> Update(string id, SensorData updatedSensorData)
     {
