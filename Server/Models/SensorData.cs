@@ -9,8 +9,8 @@ public class SensorData
     [BsonRepresentation(BsonType.ObjectId)]
     public string Id { get; set; }
 
-    [BsonElement("sensorId")]
-    public string SensorId { get; set; } = null!;
+    [BsonElement("metadata")]
+    public SensorMetadata Metadata { get; set; } = null!;
 
     [BsonElement("timestamp")]
     public DateTime Timestamp { get; set; }
@@ -29,4 +29,10 @@ public class SensorData
     [BsonIgnoreIfNull] public int? J { get; set; }
     [BsonIgnoreIfNull] public int? K { get; set; }
     [BsonIgnoreIfNull] public int? L { get; set; }
+}
+
+public class SensorMetadata
+{
+    public string SensorId { get; set; }
+    public string Version { get; set; }
 }

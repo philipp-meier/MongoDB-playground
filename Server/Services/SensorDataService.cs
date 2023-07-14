@@ -8,8 +8,7 @@ public class SensorDataService
 {
     private readonly IMongoCollection<SensorData> _sensorDataCollection;
 
-    public SensorDataService(
-        IOptions<DatabaseSettings> databaseSettings)
+    public SensorDataService(IOptions<DatabaseSettings> databaseSettings)
     {
         var mongoClient = new MongoClient(
             databaseSettings.Value.ConnectionString);

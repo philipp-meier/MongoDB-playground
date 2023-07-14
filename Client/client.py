@@ -12,9 +12,12 @@ entries = []
 for n in range(max_entries):
     timestamp = timestamp + timedelta(milliseconds=300)
     entry = {
-        "sensorId": sensor_id,
+        "metadata": {
+            "sensorId": sensor_id,
+            "version": "1.0"
+        },
         "timestamp": timestamp.isoformat(),
-        "temperature": random.randint(0, 36),
+        "temperature": round(random.uniform(0, 36), 2)
     }
     # A to L
     for letter in list(map(chr, range(65, 77))):

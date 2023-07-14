@@ -3,10 +3,7 @@ using Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
-
-builder.Services.Configure<DatabaseSettings>(
-    builder.Configuration.GetSection("MongoDb")
-);
+builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("MongoDb"));
 
 builder.Services.AddSingleton<SensorDataService>();
 
