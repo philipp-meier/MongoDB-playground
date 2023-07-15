@@ -29,6 +29,9 @@ public class SensorData
     [BsonIgnoreIfNull] public int? J { get; set; }
     [BsonIgnoreIfNull] public int? K { get; set; }
     [BsonIgnoreIfNull] public int? L { get; set; }
+
+    public object GetPropertyValue(string name)
+        => typeof(SensorData).GetProperty(name).GetValue(this);
 }
 
 public class SensorMetadata

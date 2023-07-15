@@ -1,6 +1,7 @@
-using Microsoft.Extensions.Options;
-using MongoDB.Driver;
 using Server.Models;
+using MongoDB.Driver;
+using Server.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Server.Services;
 
@@ -8,15 +9,13 @@ public class SensorDataService
 {
     private readonly IMongoCollection<SensorData> _sensorDataCollection;
 
-    public SensorDataService(IOptions<DatabaseSettings> databaseSettings)
+    public SensorDataService(IOptions<DatabaseSettings> settingsOption)
     {
-        var mongoClient = new MongoClient(
-            databaseSettings.Value.ConnectionString);
+        var settings = settingsOption.Value;
+        var mongoClient = new MongoClient(settings.ConnectionString);
+        var mongoDatabase = mongoClient.GetDatabase(settings.DatabaseName);
 
-        var mongoDatabase = mongoClient.GetDatabase(
-            databaseSettings.Value.DatabaseName);
-
-        var collectionName = databaseSettings.Value.CollectionName;
+        var collectionName = settings.CollectionName;
         if (!CollectionExists(mongoDatabase, collectionName))
         {
             // Create time series collection.
@@ -26,30 +25,43 @@ public class SensorDataService
             });
         }
 
-        _sensorDataCollection = mongoDatabase.GetCollection<SensorData>(
-            databaseSettings.Value.CollectionName);
+        _sensorDataCollection = mongoDatabase.GetCollection<SensorData>(settings.CollectionName);
     }
     private bool CollectionExists(IMongoDatabase database, string name)
         => database.ListCollectionNames().ToList().Contains(name);
 
-    public async Task<List<SensorData>> GetAsync()
-        => await _sensorDataCollection.Find(_ => true).ToListAsync();
-
-    public async Task<SensorData> GetAsync(string id)
-        => await _sensorDataCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
-
-    public async Task CreateAsync(SensorData sensorData)
-        => await _sensorDataCollection.InsertOneAsync(sensorData);
-
-    public async Task BulkInsertAsync(SensorData[] bulkData, CancellationToken cancellationToken)
+    public async Task ImportAsync(SensorData[] data, CancellationToken cancellationToken)
     {
-        var entries = bulkData.Select(x => new InsertOneModel<SensorData>(x));
+        var entries = data.Select(x => new InsertOneModel<SensorData>(x));
         await _sensorDataCollection.BulkWriteAsync(entries, new BulkWriteOptions { IsOrdered = false }, cancellationToken);
     }
 
-    public async Task UpdateAsync(string id, SensorData updateSensorData)
-        => await _sensorDataCollection.ReplaceOneAsync(x => x.Id == id, updateSensorData);
+    public async Task<SensorStatistic> GetStatistic(string sensorId, DateTime from, DateTime to, CancellationToken ct)
+    {
+        var filter = Builders<SensorData>.Filter
+            .Where(r => r.Metadata.SensorId == sensorId && r.Timestamp >= from && r.Timestamp <= to);
 
-    public async Task RemoveAsync(string id)
-        => await _sensorDataCollection.DeleteOneAsync(x => x.Id == id);
+        var collection = _sensorDataCollection;
+        return new SensorStatistic
+        {
+            SensorId = sensorId,
+            Count = await collection.CountDocumentsAsync(filter, new CountOptions { Limit = null }, ct),
+            From = (await collection.MinBy(filter, "Timestamp", ct))?.Timestamp,
+            To = (await collection.MaxBy(filter, "Timestamp", ct))?.Timestamp,
+            // Measures
+            Temp = await collection.CreateMeasureStatisticFor<float?>("Temperature", filter, ct),
+            A = await collection.CreateMeasureStatisticFor<int?>("A", filter, ct),
+            B = await collection.CreateMeasureStatisticFor<int?>("B", filter, ct),
+            C = await collection.CreateMeasureStatisticFor<int?>("C", filter, ct),
+            D = await collection.CreateMeasureStatisticFor<int?>("D", filter, ct),
+            E = await collection.CreateMeasureStatisticFor<int?>("E", filter, ct),
+            F = await collection.CreateMeasureStatisticFor<int?>("F", filter, ct),
+            G = await collection.CreateMeasureStatisticFor<int?>("G", filter, ct),
+            H = await collection.CreateMeasureStatisticFor<int?>("H", filter, ct),
+            I = await collection.CreateMeasureStatisticFor<int?>("I", filter, ct),
+            J = await collection.CreateMeasureStatisticFor<int?>("J", filter, ct),
+            K = await collection.CreateMeasureStatisticFor<int?>("K", filter, ct),
+            L = await collection.CreateMeasureStatisticFor<int?>("L", filter, ct),
+        };
+    }
 }
